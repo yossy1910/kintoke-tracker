@@ -43,10 +43,10 @@ def get_sheet():
 
 def load_data():
     ws = get_sheet()
-    rows = ws.get_all_records()
-    if not rows:
+    all_values = ws.get_all_values()
+    if len(all_values) <= 1:
         return pd.DataFrame(columns=COLUMNS)
-    df = pd.DataFrame(rows)
+    df = pd.DataFrame(all_values[1:], columns=all_values[0])
     for col in ["重さ(kg)", "回数", "距離(km)"]:
         df[col] = pd.to_numeric(df[col], errors="coerce")
     df["日付"] = pd.to_datetime(df["日付"], errors="coerce")
