@@ -36,7 +36,9 @@ def get_sheet():
     )
     gc = gspread.authorize(creds)
     ws = gc.open_by_key(st.secrets["spreadsheet_id"]).sheet1
-    if not ws.get_all_values():
+    existing = ws.get_all_values()
+    if not existing or existing[0] != COLUMNS:
+        ws.clear()
         ws.append_row(COLUMNS)
     return ws
 
@@ -47,6 +49,9 @@ def load_data():
     if len(all_values) <= 1:
         return pd.DataFrame(columns=COLUMNS)
     df = pd.DataFrame(all_values[1:], columns=all_values[0])
+    for col in COLUMNS:
+        if col not in df.columns:
+            df[col] = None
     for col in ["重さ(kg)", "回数", "距離(km)"]:
         df[col] = pd.to_numeric(df[col], errors="coerce")
     df["日付"] = pd.to_datetime(df["日付"], errors="coerce")
